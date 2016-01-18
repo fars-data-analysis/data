@@ -1,0 +1,28 @@
+Create folders for data:
+mkdir data
+mkdir original
+mkdir unzipped
+mkdir csv
+
+Download data: 
+cd original
+for i in `seq 1975 2014`; do wget ftp://ftp.nhtsa.dot.gov/FARS/${i}/DBF/FARS${i}.zip ; done
+for i in `seq 94 99`; do wget ftp://ftp.nhtsa.dot.gov/FARS/19${i}/DBF/FARS${i}.zip ; done
+wget ftp://ftp.nhtsa.dot.gov/FARS/2000/DBF/FARS00.zip ; done
+
+Create folders for extracting the original Zip files:
+for i in `ls | grep .zip`; do  mkdir  `echo ${i} | tr -cd '[[:digit:]]'`; done;
+
+
+Unzip originals zip files:
+for i in `ls | grep .zip`; do unzip ${i} -d ../unzipped/`echo ${i} | tr -cd '[[:digit:]]'`; done;
+
+
+Download DBF to CSV conversion script:
+cd ../
+https://dbf2csv.googlecode.com/files/dbf2csv.tar.gz
+tar -xvzf dbf2csv.tar.gz
+
+Convert DBF files to CSV
+for i in `find unzipped -iname "*DBF"`; do mkdir -p `dirname ${i} | sed "s/unzipped/csv/g"`; python dbf2csv/dbf2csv.py ${i} `echo ${i} | sed "s/unzipped/csv/g" | sed "s/[dD][bB][fF]/csv/g" `; done;
+ 
